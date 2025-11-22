@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b0c10;
+        --panel: #111317;
+        --soft: #171a21;
+        --text: #e6e8ec;
+        --muted: #9aa3af;
+        --brand: #6ee7ff; /* cyan */
+        --brand-2: #a78bfa; /* purple */
+        --ok: #86efac;
+        --warn: #fcd34d;
+        --danger: #fca5a5;
+        --ring: 0 0 0 3px rgba(110, 231, 255, 0.35);
+        --shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+        --radius: 16px;
+      }
+      :root.light {
+        --bg: #f8fafc;
+        --panel: #ffffff;
+        --soft: #eef2f7;
+        --text: #0f172a;
+        --muted: #61708a;
+        --shadow: 0 8px 24px rgba(2, 6, 23, 0.08);
+        --ring: 0 0 0 3px rgba(99, 102, 241, 0.25);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: linear-gradient(
+          120deg,
+          var(--bg),
+          #0a0b0e 35%,
+          var(--soft)
+        );
+        color: var(--text);
+        font:
+          16px/1.5 Inter,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+        transition:
+          background 0.3s ease,
+          color 0.3s ease;
+      }
+      .app {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: conic-gradient(
+          from 180deg at 50% 50%,
+          var(--brand),
+          var(--brand-2)
+        );
+        box-shadow: var(--shadow);
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        margin: 18px 0 22px;
+      }
+      .searchbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--panel);
+        padding: 10px 12px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .searchbar input {
+        flex: 1;
+        background: transparent;
+        border: 0;
+        outline: 0;
+        color: var(--text);
+      }
+      .chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .chip {
+        padding: 8px 10px;
+        border-radius: 999px;
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 13px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .chip:hover {
+        background: rgba(110, 231, 255, 0.1);
+      }
+      .chip[data-active="true"] {
+        color: var(--text);
+        background: linear-gradient(
+          90deg,
+          rgba(110, 231, 255, 0.15),
+          rgba(167, 139, 250, 0.15)
+        );
+        border-color: rgba(110, 231, 255, 0.35);
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      button,
+      .btn {
+        appearance: none;
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 600;
+        cursor: pointer;
+        color: #0b0c10;
+        background: linear-gradient(90deg, var(--brand), var(--brand-2));
+        box-shadow: var(--shadow);
+        transition: all 0.2s ease;
+      }
+      button:hover,
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+      }
+      .ghost {
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .ghost:hover {
+        background: var(--soft);
+        color: var(--text);
+      }
+      .icon-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        padding: 12px;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      select,
+      input[type="date"],
+      input[type="text"],
+      textarea {
+        background: var(--soft);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 8px 10px;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+      select:focus,
+      input:focus,
+      textarea:focus {
+        box-shadow: var(--ring);
+        border-color: transparent;
+      }
+
+      .list {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+      }
+      .task {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.03),
+          rgba(255, 255, 255, 0)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 10px;
+        position: relative;
+        transition: all 0.2s ease;
+      }
+      .task:hover {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        border-color: rgba(110, 231, 255, 0.2);
+      }
+      .task[data-completed="true"] {
+        opacity: 0.65;
+      }
+      .drag {
+        width: 8px;
+        cursor: grab;
+        height: 28px;
+        border-radius: 4px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.15),
+          rgba(255, 255, 255, 0.05)
+        );
+        margin-left: 4px;
+      }
+      .drag:active {
+        cursor: grabbing;
+      }
+      .title {
+        font-weight: 600;
+      }
+      .meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .tag {
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .prio-P1 {
+        background: rgba(252, 165, 165, 0.18);
+        border-color: rgba(252, 165, 165, 0.4);
+      }
+      .prio-P2 {
+        background: rgba(252, 211, 77, 0.18);
+        border-color: rgba(252, 211, 77, 0.4);
+      }
+      .prio-P3 {
+        background: rgba(134, 239, 172, 0.18);
+        border-color: rgba(134, 239, 172, 0.4);
+      }
+
+      .row-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .row-actions button {
+        background: var(--soft);
+        color: var(--text);
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+      .row-actions .danger {
+        background: linear-gradient(90deg, #fb7185, #f43f5e);
+        color: white;
+      }
+
+      .footerbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.08);
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        background: black;
+
+        z-index: 1000;
+      }
+      .modal[open] {
+        display: grid;
+      }
+      .sheet {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        animation: slideIn 0.2s ease;
+      }
+      .sheet header {
+        padding: 16px 16px 0 16px;
+      }
+      .sheet .content {
+        padding: 16px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .sheet label,
+      header {
+        color: #e6e8ec;
+      }
+
+      .kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: var(--soft);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      .empty-state {
+        padding: 40px 20px;
+        text-align: center;
+        color: var(--muted);
+      }
+      .empty-state .icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      .loading {
+        opacity: 0.7;
+        pointer-events: none;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .task {
+          grid-template-columns: 28px 1fr;
+          gap: 8px;
+        }
+        .row-actions {
+          margin-top: 8px;
+          justify-self: start;
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (min-width: 860px) {
+        .toolbar {
+          grid-template-columns: 1fr auto auto;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app" id="app">
+      <header>
+        <div class="brand">
+          <div>
+            <h1></h1>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="newBtn" class="icon-btn"><span>＋</span> New task</button>
+
+          <button id="logoutBtn" class="ghost icon-btn">🚪 Logout</button>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <div class="searchbar" role="search">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M21 21l-3.5-3.5"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+            <circle
+              cx="10.5"
+              cy="10.5"
+              r="7"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+          </svg>
+          <input
+            id="search"
+            type="text"
+            placeholder="Search tasks (Press / to focus)"
+            aria-label="Search tasks"
+          />
+        </div>
+        <div class="chips" id="tabs" role="tablist" aria-label="Views">
+          <div role="tab" class="chip" data-view="all" data-active="true">
+            All
+          </div>
+          <div role="tab" class="chip" data-view="today">Today</div>
+          <div role="tab" class="chip" data-view="upcoming">Upcoming</div>
+          <div role="tab" class="chip" data-view="completed">Completed</div>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="controls">
+          <label
+            >Sort
+            <select id="sort">
+              <option value="createdDesc">Newest</option>
+              <option value="dueAsc">Due date ↑</option>
+              <option value="dueDesc">Due date ↓</option>
+              <option value="prio">Priority</option>
+              <option value="title">Title</option>
+            </select>
+          </label>
+          <label
+            >Priority
+            <select id="prioFilter">
+              <option value="">Any</option>
+              <option value="P1">P1 — High</option>
+              <option value="P2">P2 — Medium</option>
+              <option value="P3">P3 — Low</option>
+            </select>
+          </label>
+          <label
+            >Status
+            <select id="statusFilter">
+              <option value="">Any</option>
+              <option value="open">Open</option>
+              <option value="done">Completed</option>
+            </select>
+          </label>
+          <div style="margin-left: auto"></div>
+          <button id="bulkDone" class="ghost">Mark selected done</button>
+          <button id="bulkDelete" class="ghost">Delete selected</button>
+        </div>
+        <div class="list" id="list" aria-live="polite"></div>
+        <div class="footerbar">
+          <div>
+            <span id="countOpen">0</span> open •
+            <span id="countAll">0</span> total
+          </div>
+          <div>
+            Press <span class="kbd">N</span> for new task •
+            <span class="kbd">/</span> to search •
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <dialog class="modal" id="taskModal">
+      <form method="dialog" class="sheet" id="taskForm">
+        <header>
+          <h2 id="modalTitle">New Task</h2>
+        </header>
+        <div class="content">
+          <input type="hidden" id="taskId" />
+          <label
+            >Title
+            <input
+              id="title"
+              type="text"
+              required
+              placeholder="e.g., Ship API spec"
+            />
+          </label>
+          <label
+            >Description
+            <textarea
+              id="desc"
+              rows="3"
+              placeholder="Optional notes…"
+            ></textarea>
+          </label>
+          <div
+            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px"
+          >
+            <label
+              >Due date
+              <input id="due" type="date" />
+            </label>
+            <label
+              >Priority
+              <select id="prio">
+                <option value="P2">P2 — Medium</option>
+                <option value="P1">P1 — High</option>
+                <option value="P3">P3 — Low</option>
+              </select>
+            </label>
+            <label
+              >Tags (comma)
+              <input id="tags" type="text" placeholder="work, school" />
+            </label>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: 10px;
+              margin-top: 6px;
+            "
+          >
+            <button type="button" class="ghost" id="cancelBtn">Cancel</button>
+            <button type="submit" id="saveBtn" class="btn">Save</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <script>
+      const store = { tasks: [], settings: { theme: "dark" } };
+      let currentUser = null;
+      const state = {
+        view: "all",
+        q: "",
+        sort: "createdDesc",
+        prioFilter: "",
+        statusFilter: "",
+        selected: new Set(),
+      };
+
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+      function escapeHTML(s) {
+        return s.replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]
+        );
+      }
+
+      // Initialize user and load tasks
+      async function initUser() {
+        try {
+          const res = await fetch("/api/me");
+          if (!res.ok) throw new Error("Failed to fetch user");
+          currentUser = await res.json();
+          $("header h1").textContent =
+            `${currentUser.surname} ${currentUser.name}` || "Guest";
+
+          await loadTasks(currentUser.id); // <-- send correct ID
+        } catch (err) {
+          console.error(err);
+          $("header h1").textContent = "Guest";
+        }
+      }
+
+      // Fetch all tasks for current user from DB
+      async function loadTasks(userId) {
+        try {
+          const res = await fetch(`/api/tasks?userId=${userId}`);
+          if (!res.ok) throw new Error("Failed to fetch tasks");
+
+          const data = await res.json();
+
+          // Map DB columns to your JS structure
+          store.tasks = data.map((t) => ({
+            id: t.id,
+            title: t.title,
+            desc: t.description || "",
+            prio: t.priority,
+            due: t.due_date ? t.due_date.slice(0, 10) : "", // YYYY-MM-DD
+            tags: t.tags ? t.tags.split(",").map((tag) => tag.trim()) : [],
+            done: t.done,
+          }));
+
+          render();
+        } catch (err) {
+          console.error("Failed to fetch tasks:", err);
+        }
+      }
+
+      // Render tasks
+      function render() {
+        const list = $("#list");
+        const todayStr = new Date().toISOString().slice(0, 10);
+        let items = store.tasks.slice();
+
+        items = items.filter((t) => {
+          if (state.view === "today") return t.due === todayStr && !t.done;
+          if (state.view === "upcoming")
+            return t.due && t.due > todayStr && !t.done;
+          if (state.view === "completed") return !!t.done;
+          return true;
+        });
+
+        if (state.q)
+          items = items.filter((t) =>
+            (t.title + " " + (t.tags || []).join(" ") + " " + (t.desc || ""))
+              .toLowerCase()
+              .includes(state.q)
+          );
+
+        if (state.prioFilter)
+          items = items.filter((t) => t.prio === state.prioFilter);
+        if (state.statusFilter)
+          items = items.filter((t) =>
+            state.statusFilter === "open" ? !t.done : t.done
+          );
+
+        switch (state.sort) {
+          case "dueAsc":
+            items.sort((a, b) =>
+              (a.due || "") < (b.due || "")
+                ? -1
+                : (a.due || "") > (b.due || "")
+                  ? 1
+                  : 0
+            );
+            break;
+          case "dueDesc":
+            items.sort((a, b) =>
+              (a.due || "") > (b.due || "")
+                ? -1
+                : (a.due || "") < (b.due || "")
+                  ? 1
+                  : 0
+            );
+            break;
+          case "prio":
+            items.sort((a, b) => a.prio.localeCompare(b.prio));
+            break;
+          case "title":
+            items.sort((a, b) => a.title.localeCompare(b.title));
+            break;
+          default:
+            items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        }
+
+        $("#countAll").textContent = store.tasks.length;
+        $("#countOpen").textContent = store.tasks.filter((t) => !t.done).length;
+
+        list.innerHTML = "";
+        if (!items.length) {
+          const empty = document.createElement("div");
+          empty.className = "empty-state";
+          let emptyMsg = "";
+          if (state.q) emptyMsg = `No tasks found for "${state.q}"`;
+          else if (state.view === "today") emptyMsg = "No tasks due today";
+          else if (state.view === "upcoming") emptyMsg = "No upcoming tasks";
+          else if (state.view === "completed") emptyMsg = "No completed tasks";
+          else emptyMsg = "No tasks yet";
+          empty.innerHTML = `<div class="icon">📝</div><div>${emptyMsg}</div>${!state.q && state.view === "all" ? '<div style="margin-top:8px">Press <span class="kbd">N</span> to create your first task</div>' : ""}`;
+          list.appendChild(empty);
+          return;
+        }
+
+        items.forEach((t) => list.appendChild(renderRow(t)));
+      }
+
+      // Render individual task row
+      function renderRow(t) {
+        const el = document.createElement("div");
+        el.className = "task";
+        el.dataset.id = t.id;
+        el.dataset.completed = String(!!t.done);
+        el.draggable = true;
+
+        let dueDateDisplay = "";
+        if (t.due) {
+          const dueDate = new Date(t.due + "T00:00:00");
+          const today = new Date();
+          const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+          if (diffDays < 0)
+            dueDateDisplay = `📅 Overdue (${Math.abs(diffDays)} days)`;
+          else if (diffDays === 0) dueDateDisplay = "📅 Due today";
+          else if (diffDays === 1) dueDateDisplay = "📅 Due tomorrow";
+          else dueDateDisplay = `📅 Due in ${diffDays} days`;
+        }
+
+        el.innerHTML = `
+            <input type="checkbox" ${state.selected.has(t.id) ? "checked" : ""}/>
+            <div>
+              <div class="title">${escapeHTML(t.title)}</div>
+              <div class="meta">
+                ${t.due ? `<span title="Due date" class="tag ${t.due < new Date().toISOString().slice(0, 10) && !t.done ? "prio-P1" : ""}">${dueDateDisplay}</span>` : ""}
+                <span class="tag prio-${t.prio}" title="Priority">${t.prio}</span>
+                ${(Array.isArray(t.tags) ? t.tags : []).map((x) => `<span class="tag" title="Tag">#${escapeHTML(x)}</span>`).join("")}
+                ${t.desc ? `<span title="Description">• ${escapeHTML(t.desc)}</span>` : ""}
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="ghost" data-act="toggle">${t.done ? "↩︎" : "✓"}</button>
+              <button class="ghost" data-act="edit">✎</button>
+              <button class="danger" data-act="delete">🗑</button>
+              <div class="drag" tabindex="0" role="button"></div>
+            </div>
+          `;
+
+        // Event listeners
+        // Handle checkbox selection
+        const [chk] = el.querySelectorAll('input[type="checkbox"]');
+        chk.addEventListener("change", () =>
+          chk.checked ? state.selected.add(t.id) : state.selected.delete(t.id)
+        );
+
+        // Toggle task done status
+        el.querySelector('[data-act="toggle"]').addEventListener(
+          "click",
+          () => {
+            showDynamicModal({
+              title: "Change the status",
+              message: `Mark "${t.title}" as ${t.done ? "not done" : "done"}?`,
+              cancelText: "Cancel",
+              confirmText: "Change",
+              onConfirm: async () => {
+                try {
+                  const res = await fetch("/api/tasks/toggle", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: t.id }),
+                  });
+                  if (!res.ok) throw new Error("Failed to toggle task");
+
+                  const updatedTask = await res.json();
+                  store.tasks = store.tasks.map((x) =>
+                    x.id === t.id ? updatedTask : x
+                  );
+                  refreshTasks();
+                  render();
+                  showToast("Task status updated!");
+                } catch (err) {
+                  console.error(err);
+                  showToast("Error toggling task");
+                }
+              },
+            });
+          }
+        );
+
+        // Edit task
+        el.querySelector('[data-act="edit"]').addEventListener("click", () =>
+          openModal(t)
+        );
+
+        // Delete task using dynamic modal
+        el.querySelector('[data-act="delete"]').addEventListener(
+          "click",
+          () => {
+            showDynamicModal({
+              title: "Delete Task",
+              message: `Are you sure you want to delete "${t.title}"?`,
+              cancelText: "Cancel",
+              confirmText: "Delete",
+              onConfirm: async () => {
+                try {
+                  const res = await fetch("/api/tasks", {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: t.id }),
+                  });
+                  if (!res.ok) throw new Error("Failed to delete task");
+                  store.tasks = store.tasks.filter((x) => x.id !== t.id);
+                  refreshTasks();
+                  render();
+                  showToast("Task deleted!");
+                } catch (err) {
+                  console.error(err);
+                  showToast("Error deleting task");
+                }
+              },
+            });
+          }
+        );
+
+        // Drag & drop
+        el.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", t.id);
+          e.dataTransfer.effectAllowed = "move";
+          el.style.opacity = 0.6;
+        });
+        el.addEventListener("dragend", () => (el.style.opacity = ""));
+        el.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+        });
+        el.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const draggedId = Number(e.dataTransfer.getData("text/plain"));
+          if (!draggedId || draggedId === t.id) return;
+          const tasks = store.tasks.slice();
+          const from = tasks.findIndex((x) => x.id === draggedId);
+          const to = tasks.findIndex((x) => x.id === t.id);
+          const [moved] = tasks.splice(from, 1);
+          tasks.splice(to, 0, moved);
+          store.tasks = tasks;
+          render();
+        });
+
+        return el;
+      }
+      // Refresh the task list from the server
+      async function refreshTasks() {
+        if (!currentUser) return;
+        try {
+          const res = await fetch(`/api/tasks?userId=${currentUser.id}`);
+          if (!res.ok) throw new Error("Failed to fetch tasks");
+
+          const data = await res.json();
+          store.tasks = data.map((t) => ({
+            id: t.id,
+            title: t.title,
+            desc: t.description || "",
+            prio: t.priority,
+            due: t.due_date ? t.due_date.slice(0, 10) : "",
+            tags: t.tags ? t.tags.split(",").map((tag) => tag.trim()) : [],
+            done: t.done,
+            createdAt: t.created_at ? new Date(t.created_at).getTime() : 0,
+            updatedAt: t.updated_at ? new Date(t.updated_at).getTime() : 0,
+          }));
+
+          render();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to refresh tasks");
+        }
+      }
+
+      // Toast notifications
+      function showToast(msg) {
+        const toast = document.createElement("div");
+        toast.textContent = msg;
+        Object.assign(toast.style, {
+          position: "fixed",
+          bottom: "24px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "var(--brand)",
+          color: "#0b0c10",
+          padding: "10px 20px",
+          borderRadius: "12px",
+          boxShadow: "var(--shadow)",
+          zIndex: 2000,
+          opacity: "0",
+          transition: "opacity 0.3s ease",
+        });
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => (toast.style.opacity = "1"));
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.addEventListener("transitionend", () => toast.remove());
+        }, 2500);
+      }
+
+      $("#logoutBtn").addEventListener("click", () => {
+        logoutModal.style.visibility = "visible";
+        logoutModal.style.opacity = 1;
+      });
+
+      // Modal
+      const modal = $("#taskModal");
+      function openModal(editTask) {
+        $("#modalTitle").textContent = editTask ? "Edit Task" : "New Task";
+        $("#taskId").value = editTask?.id || "";
+        $("#title").value = editTask?.title || "";
+        $("#desc").value = editTask?.desc || "";
+        $("#prio").value = editTask?.prio || "P2";
+        $("#due").value = editTask?.due || "";
+        $("#tags").value = (editTask?.tags || []).join(", ");
+        modal.setAttribute("open", "");
+        $("#title").focus();
+      }
+      function closeModal() {
+        modal.removeAttribute("open");
+        refreshTasks();
+      }
+      $("#newBtn").addEventListener("click", () => openModal());
+      $("#cancelBtn").addEventListener("click", closeModal);
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      // Tabs
+      $("#tabs").addEventListener("click", (e) => {
+        const tab = e.target.closest("[data-view]");
+        if (!tab) return;
+        state.view = tab.dataset.view;
+        $$("#tabs .chip").forEach(
+          (c) => (c.dataset.active = String(c === tab))
+        );
+        render();
+      });
+
+      // Filters
+      $("#search").addEventListener("input", (e) => {
+        state.q = e.target.value.trim().toLowerCase();
+        render();
+      });
+      $("#sort").addEventListener("change", (e) => {
+        state.sort = e.target.value;
+        render();
+      });
+      $("#prioFilter").addEventListener("change", (e) => {
+        state.prioFilter = e.target.value;
+        render();
+      });
+      $("#statusFilter").addEventListener("change", (e) => {
+        state.statusFilter = e.target.value;
+        render();
+      });
+
+      // Bulk actions
+      $("#bulkDone").addEventListener("click", () => {
+        if (!state.selected.size) return;
+        showDynamicModal({
+          title: "Change the status",
+          message: `Mark ${state.selected.size} task(s) as done?`,
+          cancelText: "Cancel",
+          confirmText: "Change",
+          onConfirm: async () => {
+            try {
+              const res = await fetch("/api/tasks/bulk-toggle-done", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ids: Array.from(state.selected) }),
+              });
+
+              if (!res.ok) throw new Error("Failed to update tasks");
+
+              const data = await res.json();
+
+              // Update local store with only the tasks that were actually updated
+              store.tasks = store.tasks.map(
+                (t) => data.updatedTasks.find((u) => u.id === t.id) || t
+              );
+
+              state.selected.clear();
+              refreshTasks();
+              render();
+
+              showToast(`${data.updatedCount} task(s) marked as done!`);
+            } catch (err) {
+              console.error(err);
+              showToast("Error marking tasks as done");
+            }
+          },
+        });
+      });
+
+      $("#bulkDelete").addEventListener("click", async () => {
+        if (!state.selected.size) return;
+        showDynamicModal({
+          title: "Delete The Selected Tasks",
+          message: `Are you sure you want to delete ${state.selected.size} task(s)?`,
+          cancelText: "Cancel",
+          confirmText: "Delete",
+          onConfirm: async () => {
+            try {
+              const res = await fetch("/api/tasks/toggle", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ids: Array.from(state.selected) }),
+              });
+
+              if (!res.ok) throw new Error("Failed to delete tasks");
+
+              const data = await res.json();
+
+              // Remove deleted tasks from local store
+              store.tasks = store.tasks.filter(
+                (t) => !data.deletedTasks.find((d) => d.id === t.id)
+              );
+
+              state.selected.clear();
+              refreshTasks();
+              render();
+
+              showToast(`${data.deletedCount} task(s) deleted!`);
+            } catch (err) {
+              console.error(err);
+              showToast("Error deleting tasks");
+            }
+          },
+        });
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.target.matches("input,textarea,select")) return;
+        if (e.key === "/") {
+          e.preventDefault();
+          $("#search").focus();
+        }
+        if (e.key.toLowerCase() === "n") {
+          e.preventDefault();
+          openModal();
+        }
+
+        if (e.key === "Escape") {
+          closeModal();
+          refreshTasks();
+        }
+      });
+
+      // Task form
+      const saveBtn = $('#taskForm button[type="submit"]');
+      $("#taskForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!currentUser) {
+          alert("User not loaded yet.");
+          return;
+        }
+        saveBtn.disabled = true;
+
+        const rawId = $("#taskId").value.trim();
+        const task = {
+          user_id: currentUser.id,
+          title: $("#title").value.trim(),
+          desc: $("#desc").value.trim(),
+          prio: $("#prio").value,
+          due: $("#due").value || "",
+          tags: $("#tags")
+            .value.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        };
+        if (rawId) task.id = Number(rawId);
+        task.createdAt = Date.now();
+        if (!task.title) {
+          $("#title").focus();
+          saveBtn.disabled = false;
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/tasks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(task),
+          });
+          if (!res.ok) throw new Error("Failed to save task");
+          const savedTask = await res.json();
+          const idx = store.tasks.findIndex((t) => t.id === savedTask.id);
+          if (idx > -1) store.tasks[idx] = savedTask;
+          else store.tasks.unshift(savedTask);
+          closeModal();
+          refreshTasks();
+          render();
+          showToast(
+            rawId ? "Task updated successfully!" : "Task added successfully!"
+          );
+        } catch (err) {
+          console.error(err);
+          showToast(rawId ? "Error updating task" : "Error adding task");
+        } finally {
+          saveBtn.disabled = false;
+        }
+      });
+
+      // Dynamic empty modal
+      const dynamicModal = document.createElement("div");
+      Object.assign(dynamicModal.style, {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        background: "rgba(0,0,0,0.5)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 2000,
+        visibility: "hidden",
+        opacity: 0,
+        transition: "opacity 0.3s",
+      });
+
+      
+      function showDynamicModal({
+        title = "",
+        message = "",
+        onConfirm,
+        confirmText = "Confirm",
+        cancelText = "Cancel",
+      }) {
+        
+        dynamicModal.innerHTML = `
+        <div style="background:#555; padding:20px; border-radius:12px; text-align:center; min-width:300px; color:#000;">
+          <h3 id="modalTitle">${title}</h3>
+          <p id="modalMessage">${message}</p>
+          <div style="margin-top:20px; display:flex; justify-content:space-around;">
+            <button id="modalCancelBtn" style="padding:6px 12px; border:none; background:#ccc; border-radius:6px; color:#000;">${cancelText}</button>
+            <button id="modalConfirmBtn" style="padding:6px 12px; border:none; background:#f33; color:#fff; border-radius:6px;">${confirmText}</button>
+          </div>
+        </div>
+      `;
+
+        dynamicModal.style.visibility = "visible";
+        dynamicModal.style.opacity = 1;
+
+        const confirmBtn = document.getElementById("modalConfirmBtn");
+        const cancelBtn = document.getElementById("modalCancelBtn");
+
+        confirmBtn.onclick = () => {
+          if (onConfirm) onConfirm();
+          hideDynamicModal();
+        };
+
+        cancelBtn.onclick = hideDynamicModal;
+      }
+
+      // Hide modal
+      function hideDynamicModal() {
+        dynamicModal.style.opacity = 0;
+        setTimeout(() => (dynamicModal.style.visibility = "hidden"), 300);
+      }
+
+      // Close if click outside content
+      dynamicModal.addEventListener("click", (e) => {
+        if (e.target === dynamicModal) hideDynamicModal();
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        showDynamicModal({
+          title: "",
+          message: "Are you sure you want to logout?",
+          confirmText: "Logout",
+          cancelText: "Cancel",
+          onConfirm: () => {
+            fetch("/", { method: "GET" })
+              .then(() => (window.location.href = "/"))
+
+          },
+        });
+      });
+
+      function confirmDelete(taskId, taskTitle) {
+        showDynamicModal({
+          title: "Delete Task",
+          message: `Are you sure you want to delete "${taskTitle}"?`,
+          cancelText: "Cancel",
+          confirmText: "Delete",
+          onConfirm: async () => {
+            try {
+              const res = await fetch("/api/tasks", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: taskId }),
+              });
+              if (!res.ok) throw new Error("Failed to delete task");
+              store.tasks = store.tasks.filter((t) => t.id !== taskId);
+              render();
+              showToast("Task deleted!");
+            } catch (err) {
+              console.error(err);
+              showToast("Error deleting task");
+            }
+          },
+        });
+      }
+
+      document.body.appendChild(dynamicModal);
+
+      // Initialize everything
+      initUser();
+    </script>
+  </body>
+</html>

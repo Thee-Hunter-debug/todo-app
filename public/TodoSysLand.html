@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b0c10;
+      --panel: #111317;
+      --soft: #171a21;
+      --text: #e6e8ec;
+      --muted: #9aa3af;
+      --brand: #6ee7ff;
+      --brand-2: #a78bfa;
+      --accent: #ff6b9d;
+      --ok: #86efac;
+      --shadow: 0 20px 40px rgba(0,0,0,.6);
+      --shadow-lg: 0 30px 60px rgba(0,0,0,.8);
+      --radius: 20px;
+      --glow: 0 0 40px rgba(110,231,255,.3);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(110,231,255,.1), transparent 50%),
+                  linear-gradient(135deg, var(--bg) 0%, #0a0b0e 25%, var(--soft) 50%, #0a0b0e 75%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      transition: all 0.3s ease;
+    }
+    
+    nav.scrolled {
+      padding: 15px 0;
+      background: rgba(11,12,16,.8);
+      box-shadow: var(--shadow);
+    }
+    
+    .nav-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 24px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: conic-gradient(from 180deg, var(--brand), var(--brand-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--glow);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { box-shadow: var(--glow); }
+      50% { box-shadow: 0 0 60px rgba(110,231,255,.5); }
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .nav-links a:hover {
+      color: var(--brand);
+      transform: translateY(-2px);
+    }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+      transition: width 0.3s ease;
+    }
+    
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    
+    .cta-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #0b0c10;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+    
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      filter: brightness(1.1);
+    }
+    
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      padding: 120px 24px 80px;
+    }
+    
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.1;
+      background: radial-gradient(circle at 20% 80%, var(--brand) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, var(--brand-2) 0%, transparent 50%),
+                  radial-gradient(circle at 40% 40%, var(--accent) 0%, transparent 50%);
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-20px) rotate(1deg); }
+      66% { transform: translateY(10px) rotate(-1deg); }
+    }
+    
+    .hero-content {
+      max-width: 800px;
+      z-index: 1;
+      position: relative;
+    }
+    
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, var(--text) 0%, var(--brand) 50%, var(--brand-2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .hero p {
+      font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+      color: var(--muted);
+      margin-bottom: 40px;
+      font-weight: 300;
+      line-height: 1.7;
+    }
+    
+    .hero-ctas {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+    
+    .btn-primary {
+      padding: 16px 32px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #0b0c10;
+      text-decoration: none;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 1.125rem;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      filter: brightness(1.1);
+    }
+    
+    .btn-secondary {
+      padding: 16px 32px;
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 16px;
+      font-weight: 500;
+      font-size: 1.125rem;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,.1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,.1);
+      transform: translateY(-3px);
+      border-color: rgba(110,231,255,.3);
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-top: 80px;
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--brand);
+      display: block;
+      margin-bottom: 8px;
+    }
+    
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Features Section */
+    .section {
+      padding: 120px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    
+    .section-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--text), var(--brand));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .section-subtitle {
+      font-size: 1.25rem;
+      color: var(--muted);
+      font-weight: 300;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 40px;
+    }
+    
+    .feature-card {
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: var(--radius);
+      padding: 40px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--brand), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(110,231,255,.2);
+      box-shadow: var(--shadow);
+    }
+    
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+    
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--glow);
+    }
+    
+    .feature-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    
+    .feature-description {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    
+    /* Preview Section */
+    .preview {
+      background: rgba(255,255,255,.01);
+      border-top: 1px solid rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    
+    .app-preview {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    
+    .preview-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px;
+      background: rgba(255,255,255,.02);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    
+    .preview-dots {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .preview-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .preview-dot:nth-child(1) { background: #ff5f57; }
+    .preview-dot:nth-child(2) { background: #ffbd2e; }
+    .preview-dot:nth-child(3) { background: #28ca42; }
+    
+    .preview-content {
+      padding: 40px;
+      background: var(--bg);
+    }
+    
+    .preview-task {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      animation: slideInUp 0.6s ease forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    .preview-task:nth-child(1) { animation-delay: 0.1s; }
+    .preview-task:nth-child(2) { animation-delay: 0.2s; }
+    .preview-task:nth-child(3) { animation-delay: 0.3s; }
+    
+    @keyframes slideInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .task-check {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--brand);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand);
+      font-size: 12px;
+    }
+    
+    .task-content {
+      flex: 1;
+    }
+    
+    .task-title {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .task-tag {
+      background: rgba(110,231,255,.15);
+      color: var(--brand);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(110,231,255,.3);
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      text-align: center;
+      background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(110,231,255,.05), transparent);
+    }
+    
+    .cta-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .cta-title {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--text), var(--brand));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .cta-description {
+      font-size: 1.125rem;
+      color: var(--muted);
+      margin-bottom: 40px;
+      line-height: 1.7;
+    }
+
+    .Screen-Shot {
+  width: 100%;          /* Takes full width of parent */
+  height: auto;         /* Maintains aspect ratio */
+  display: block;       /* Removes inline spacing issues */
+  border-radius: 16px;  /* Optional: match your design style */
+  object-fit: cover;    /* Ensures it covers the container nicely */
+}
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 60px 24px;
+      border-top: 1px solid rgba(255,255,255,.05);
+      color: var(--muted);
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+      color: var(--brand);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .hero-ctas {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .feature-card {
+        padding: 30px 20px;
+      }
+    }
+    
+    /* Scroll animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+    
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <nav id="navbar">
+    <div class="nav-content">
+      <a href="#" class="logo">
+        Task Manager
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#preview">Preview</a></li>
+      </ul>                 
+      <a href="Login.html" class="cta-btn"> Login</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      
+      <p>From daily errands to ambitious projects, stay organized and in control effortlessly. Keep track of every task, prioritize what matters, and see your day unfold with clarity. Whether it’s work, personal goals, or anything in between, manage it all in one sleek, intuitive app designed to make productivity simple and satisfying.</p>
+      
+      <div class="hero-ctas">
+        <a href="#preview" class="btn-secondary">
+          🗒️ See Preview
+        </a>
+      </div>
+      
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-number">12+</span>
+          <span class="stat-label">Sample Tasks</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">3</span>
+          <span class="stat-label">Priority Levels</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="section-header fade-in">
+      <h2 class="section-title">Powerful Features</h2>
+      <p class="section-subtitle">Everything you need to stay organized and productive</p>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🏷️</div>
+        <h3 class="feature-title">Smart Organization</h3>
+        <p class="feature-description">Tag your tasks, set priorities, add due dates. Filter and sort with powerful search capabilities.</p>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-icon">📱</div>
+        <h3 class="feature-title">Responsive Design</h3>
+        <p class="feature-description">Works perfectly on desktop, tablet, and mobile. Your tasks follow you everywhere.</p>
+      </div>
+      
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🌐</div>
+        <h3 class="feature-title">Online Storage</h3>
+        <p class="feature-description">Access your tasks anywhere, anytime</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section preview" id="preview">
+    <div class="section-header fade-in">
+      <h2 class="section-title">See It In Action</h2>
+      <p class="section-subtitle">A glimpse of what awaits you</p>
+    </div>
+    
+    <div class="app-preview fade-in">
+      <div class="preview-content">
+       <img class="Screen-Shot" src="Screenshot (84).png" alt="img">
+      </div>
+    </div>
+
+  </section>
+
+  <section class="section cta-section">
+    <section class="section" id="testimonials">
+  <div class="section-header fade-in">
+    <h2 class="section-title">What Our Users Say</h2>
+    <p class="section-subtitle">Hear from early adopters who love staying organized</p>
+  </div>
+
+  <div class="features-grid">
+   
+    <div class="feature-card fade-in">
+      <div class="feature-icon">💬</div>
+      <p class="feature-description">"I’ve tried so many task managers, but this one finally sticks. Setting priorities and tagging my tasks makes my day so much easier to manage. I actually look forward to checking my list!"</p>
+      <p class="stat-label" style="margin-top:10px;"> Obakeng P.</p>
+    </div>
+
+  
+    <div class="feature-card fade-in">
+      <div class="feature-icon">💬</div>
+      <p class="feature-description">"The app makes organizing work tasks and personal goals seamless. I like that it’s modern, responsive, and doesn’t feel overwhelming like some other apps."</p>
+      <p class="stat-label" style="margin-top:10px;"> Josheph L.</p>
+    </div>
+
+    <div class="feature-card fade-in">
+      <div class="feature-icon">💬</div>
+      <p class="feature-description">"Honestly, I didn’t expect to get addicted to a to-do app, but this one changed my workflow. I feel more productive and less stressed. Definitely recommend it to anyone juggling multiple projects."</p>
+      <p class="stat-label" style="margin-top:10px;">Sechaba K.</p>
+    </div>
+  </div>
+</section>
+
+    <div class="cta-content fade-in">
+      <h2 class="cta-title">Ready to get organized?</h2>
+      <p class="cta-description">Join thousands who've transformed their productivity with our beautiful task manager.</p>
+      <a href="Signup.html" class="btn-primary">
+        Join Us
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#preview">Preview</a>
+      </div>
+      <p>&copy; 2025 Task Manager Inc.</p>
+      <br>
+      <p>Need help? Send us an email <a href="mailto:support@todoinc.com">support@todoinc.com</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Intersection Observer for fade-in animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    // Observe all fade-in elements
+    document.querySelectorAll('.fade-in').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Animated counter for stats
+    function animateCounters() {
+      const counters = document.querySelectorAll('.stat-number');
+      counters.forEach(counter => {
+        const target = counter.textContent === '∞' ? '∞' : parseInt(counter.textContent.replace('+', ''));
+        if (target !== '∞') {
+          let current = 0;
+          const increment = target / 20;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              counter.textContent = target + (counter.textContent.includes('+') ? '+' : '');
+              clearInterval(timer);
+            } else {
+              counter.textContent = Math.ceil(current) + (counter.textContent.includes('+') ? '+' : '');
+            }
+          }, 50);
+        }
+      });
+    }
+
+    // Trigger counter animation when stats section is visible
+    const statsSection = document.querySelector('.stats');
+    if (statsSection) {
+      const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateCounters();
+            statsObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+      
+      statsObserver.observe(statsSection);
+    }
+
+    // Parallax effect for hero background
+    window.addEventListener('scroll', () => {
+      const scrolled = window.pageYOffset;
+      const heroBg = document.querySelector('.hero-bg');
+      if (heroBg) {
+        heroBg.style.transform = `translateY(${scrolled * 0.5}px)`;
+      }
+    });
+
+    // Easter egg: Konami code
+    let konamiCode = [];
+    const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+    
+    document.addEventListener('keydown', (e) => {
+      konamiCode.push(e.keyCode);
+      if (konamiCode.length > konami.length) {
+        konamiCode.shift();
+      }
+      
+      if (konamiCode.every((code, index) => code === konami[index])) {
+        // Easter egg activated!
+        document.body.style.animation = 'rainbow 2s infinite';
+        setTimeout(() => {
+          document.body.style.animation = '';
+        }, 4000);
+      }
+    });
+
+    // Add rainbow animation for easter egg
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes rainbow {
+        0% { filter: hue-rotate(0deg); }
+        100% { filter: hue-rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

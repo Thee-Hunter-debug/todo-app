@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --panel: #111317;
+      --soft: #171a21;
+      --text: #e6e8ec;
+      --muted: #9aa3af;
+      --brand: #6ee7ff;
+      --brand-2: #a78bfa;
+      --accent: #ff6b9d;
+      --radius: 16px;
+      --shadow: 0 20px 40px rgba(0,0,0,.6);
+    }
+
+    * { box-sizing: border-box; margin:0; padding:0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display:flex; justify-content:center; align-items:center; }
+
+    .signup-container {
+      background: var(--panel);
+      border-radius: var(--radius);
+      padding: 50px 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .signup-container h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .signup-container p {
+      color: var(--muted);
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+
+    .signup-form { display: flex; flex-direction: column; gap: 20px; }
+    .signup-form input {
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--soft);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .signup-form input::placeholder { color: var(--muted); }
+
+    .signup-form button {
+      padding: 14px 18px;
+      border: none;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: var(--bg);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .signup-form button:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+
+    .google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  background: var(--soft);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none; /* important for links */
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.google-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.google-btn:hover {
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-2px);
+}
+
+    .signup-footer {
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .signup-footer a { color: var(--brand); text-decoration: none; }
+    .signup-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="signup-container">
+    <h1 ><a href="TodoSysLand.html">Task Manager </a></h1>
+
+  <form class="signup-form" method="POST" action="/signup">
+    <input type="text" name="name" placeholder="Full Name" required>
+    <input type="text" name="surname" placeholder="Surname" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+    <button type="submit">Sign Up</button>
+     <p id="errorMsg"></p>
+  </form>
+
+    <div class="signup-footer">
+      <p>Already have an account? <a href="Login.html">Login</a></p>
+    </div>
+  </div>
+
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const msg = document.getElementById('errorMsg');
+
+  if (params.get('error') === 'exists') {
+    msg.textContent = 'Email already registered';
+    msg.style.color = 'red';
+  }
+
+  if (params.get('error') === 'mismatch') {
+    msg.textContent = 'Passwords do not match';
+    msg.style.color = 'red';
+  }
+
+  if (params.get('error') === 'missing') {
+    msg.textContent = 'Please fill in all fields';
+    msg.style.color = 'red';
+  }
+
+  if (params.get('error') === 'failed') {
+    msg.textContent = 'Signup failed, try again later';
+    msg.style.color = 'red';
+  }
+</script>
+
+</body>
+</html>
