@@ -30,7 +30,7 @@ Getting Started
 
 1. Clone the Repository
 
-git clone https://github.com/Scott_Pharcy/todo-app.git
+git clone 
 cd todo-app
 
 2. Install Dependencies
