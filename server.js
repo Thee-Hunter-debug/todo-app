@@ -7,7 +7,7 @@ const path = require('path');
 const { Pool } = require('pg');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -26,12 +26,6 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
-app.use(session({
-  secret: 'supersecretkey',
-  resave: false,
-  saveUninitialized: false
-}));
-
 
 // Landing Page
 app.get('/', (req, res) => {
