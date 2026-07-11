@@ -17,8 +17,8 @@
         --soft: #171a21;
         --text: #e6e8ec;
         --muted: #9aa3af;
-        --brand: #6ee7ff; /* cyan */
-        --brand-2: #a78bfa; /* purple */
+        --brand: #6ee7ff; 
+        --brand-2: #a78bfa;
         --ok: #86efac;
         --warn: #fcd34d;
         --danger: #fca5a5;
@@ -603,7 +603,6 @@
         );
       }
 
-      // Initialize user and load tasks
       async function initUser() {
         try {
           const res = await fetch("/api/me");
@@ -612,14 +611,14 @@
           $("header h1").textContent =
             `${currentUser.surname} ${currentUser.name}` || "Guest";
 
-          await loadTasks(currentUser.id); // <-- send correct ID
+          await loadTasks(currentUser.id);
         } catch (err) {
           console.error(err);
           $("header h1").textContent = "Guest";
         }
       }
 
-      // Fetch all tasks for current user from DB
+      
       async function loadTasks(userId) {
         try {
           const res = await fetch(`/api/tasks?userId=${userId}`);
@@ -627,13 +626,13 @@
 
           const data = await res.json();
 
-          // Map DB columns to your JS structure
+          
           store.tasks = data.map((t) => ({
             id: t.id,
             title: t.title,
             desc: t.description || "",
             prio: t.priority,
-            due: t.due_date ? t.due_date.slice(0, 10) : "", // YYYY-MM-DD
+            due: t.due_date ? t.due_date.slice(0, 10) : "",
             tags: t.tags ? t.tags.split(",").map((tag) => tag.trim()) : [],
             done: t.done,
           }));
@@ -644,7 +643,6 @@
         }
       }
 
-      // Render tasks
       function render() {
         const list = $("#list");
         const todayStr = new Date().toISOString().slice(0, 10);
@@ -722,7 +720,7 @@
         items.forEach((t) => list.appendChild(renderRow(t)));
       }
 
-      // Render individual task row
+      
       function renderRow(t) {
         const el = document.createElement("div");
         el.className = "task";
@@ -761,14 +759,11 @@
             </div>
           `;
 
-        // Event listeners
-        // Handle checkbox selection
         const [chk] = el.querySelectorAll('input[type="checkbox"]');
         chk.addEventListener("change", () =>
           chk.checked ? state.selected.add(t.id) : state.selected.delete(t.id)
         );
 
-        // Toggle task done status
         el.querySelector('[data-act="toggle"]').addEventListener(
           "click",
           () => {
@@ -802,12 +797,10 @@
           }
         );
 
-        // Edit task
         el.querySelector('[data-act="edit"]').addEventListener("click", () =>
           openModal(t)
         );
 
-        // Delete task using dynamic modal
         el.querySelector('[data-act="delete"]').addEventListener(
           "click",
           () => {
@@ -837,7 +830,6 @@
           }
         );
 
-        // Drag & drop
         el.addEventListener("dragstart", (e) => {
           e.dataTransfer.setData("text/plain", t.id);
           e.dataTransfer.effectAllowed = "move";
@@ -863,7 +855,7 @@
 
         return el;
       }
-      // Refresh the task list from the server
+
       async function refreshTasks() {
         if (!currentUser) return;
         try {
@@ -890,7 +882,7 @@
         }
       }
 
-      // Toast notifications
+  
       function showToast(msg) {
         const toast = document.createElement("div");
         toast.textContent = msg;
@@ -921,7 +913,6 @@
         logoutModal.style.opacity = 1;
       });
 
-      // Modal
       const modal = $("#taskModal");
       function openModal(editTask) {
         $("#modalTitle").textContent = editTask ? "Edit Task" : "New Task";
@@ -944,7 +935,6 @@
         if (e.target === modal) closeModal();
       });
 
-      // Tabs
       $("#tabs").addEventListener("click", (e) => {
         const tab = e.target.closest("[data-view]");
         if (!tab) return;
@@ -955,7 +945,6 @@
         render();
       });
 
-      // Filters
       $("#search").addEventListener("input", (e) => {
         state.q = e.target.value.trim().toLowerCase();
         render();
@@ -973,7 +962,7 @@
         render();
       });
 
-      // Bulk actions
+   
       $("#bulkDone").addEventListener("click", () => {
         if (!state.selected.size) return;
         showDynamicModal({
@@ -993,7 +982,6 @@
 
               const data = await res.json();
 
-              // Update local store with only the tasks that were actually updated
               store.tasks = store.tasks.map(
                 (t) => data.updatedTasks.find((u) => u.id === t.id) || t
               );
@@ -1030,7 +1018,6 @@
 
               const data = await res.json();
 
-              // Remove deleted tasks from local store
               store.tasks = store.tasks.filter(
                 (t) => !data.deletedTasks.find((d) => d.id === t.id)
               );
@@ -1048,7 +1035,6 @@
         });
       });
 
-      // Keyboard shortcuts
       document.addEventListener("keydown", (e) => {
         if (e.target.matches("input,textarea,select")) return;
         if (e.key === "/") {
@@ -1066,7 +1052,6 @@
         }
       });
 
-      // Task form
       const saveBtn = $('#taskForm button[type="submit"]');
       $("#taskForm").addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -1121,7 +1106,7 @@
         }
       });
 
-      // Dynamic empty modal
+      
       const dynamicModal = document.createElement("div");
       Object.assign(dynamicModal.style, {
         position: "fixed",
@@ -1173,13 +1158,11 @@
         cancelBtn.onclick = hideDynamicModal;
       }
 
-      // Hide modal
       function hideDynamicModal() {
         dynamicModal.style.opacity = 0;
         setTimeout(() => (dynamicModal.style.visibility = "hidden"), 300);
       }
 
-      // Close if click outside content
       dynamicModal.addEventListener("click", (e) => {
         if (e.target === dynamicModal) hideDynamicModal();
       });
@@ -1225,7 +1208,6 @@
 
       document.body.appendChild(dynamicModal);
 
-      // Initialize everything
       initUser();
     </script>
   </body>

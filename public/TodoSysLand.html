@@ -44,7 +44,7 @@
       line-height: 1.6;
     }
     
-    /* Navigation */
+    
     nav {
       position: fixed;
       top: 0;
@@ -150,7 +150,7 @@
       filter: brightness(1.1);
     }
     
-    /* Hero Section */
+
     .hero {
       min-height: 100vh;
       display: flex;
@@ -284,7 +284,7 @@
       letter-spacing: 0.05em;
     }
     
-    /* Features Section */
+    
     .section {
       padding: 120px 24px;
       max-width: 1200px;
@@ -375,7 +375,7 @@
       line-height: 1.7;
     }
     
-    /* Preview Section */
+   
     .preview {
       background: rgba(255,255,255,.01);
       border-top: 1px solid rgba(255,255,255,.05);
@@ -484,7 +484,7 @@
       border: 1px solid rgba(110,231,255,.3);
     }
     
-    /* CTA Section */
+
     .cta-section {
       text-align: center;
       background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(110,231,255,.05), transparent);
@@ -513,14 +513,14 @@
     }
 
     .Screen-Shot {
-  width: 100%;          /* Takes full width of parent */
-  height: auto;         /* Maintains aspect ratio */
-  display: block;       /* Removes inline spacing issues */
-  border-radius: 16px;  /* Optional: match your design style */
-  object-fit: cover;    /* Ensures it covers the container nicely */
+  width: 100%;         
+  height: auto;         
+  display: block;       
+  border-radius: 16px;  
+  object-fit: cover;    
 }
     
-    /* Footer */
+   
     footer {
       text-align: center;
       padding: 60px 24px;
@@ -551,7 +551,7 @@
       color: var(--brand);
     }
     
-    /* Responsive */
+ 
     @media (max-width: 768px) {
       .nav-links {
         display: none;
@@ -576,7 +576,7 @@
       }
     }
     
-    /* Scroll animations */
+
     .fade-in {
       opacity: 0;
       transform: translateY(30px);
@@ -716,12 +716,12 @@
       </div>
       <p>&copy; 2025 Task Manager Inc.</p>
       <br>
-      <p>Need help? Send us an email <a href="mailto:support@todoinc.com">support@todoinc.com</a></p>
+      <p>Need help? Send us an email <a href="mailto:noreplytdnc@gmail.com">noreplytdnc@gmail.com</a></p>
     </div>
   </footer>
 
   <script>
-    // Smooth scrolling for navigation links
+    
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -735,7 +735,7 @@
       });
     });
 
-    // Navbar scroll effect
+    
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 100) {
@@ -745,7 +745,7 @@
       }
     });
 
-    // Intersection Observer for fade-in animations
+    
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -50px 0px'
@@ -759,12 +759,10 @@
       });
     }, observerOptions);
 
-    // Observe all fade-in elements
     document.querySelectorAll('.fade-in').forEach(el => {
       observer.observe(el);
     });
 
-    // Animated counter for stats
     function animateCounters() {
       const counters = document.querySelectorAll('.stat-number');
       counters.forEach(counter => {
@@ -785,7 +783,7 @@
       });
     }
 
-    // Trigger counter animation when stats section is visible
+
     const statsSection = document.querySelector('.stats');
     if (statsSection) {
       const statsObserver = new IntersectionObserver((entries) => {
@@ -800,7 +798,6 @@
       statsObserver.observe(statsSection);
     }
 
-    // Parallax effect for hero background
     window.addEventListener('scroll', () => {
       const scrolled = window.pageYOffset;
       const heroBg = document.querySelector('.hero-bg');
@@ -809,7 +806,6 @@
       }
     });
 
-    // Easter egg: Konami code
     let konamiCode = [];
     const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
     
@@ -820,7 +816,6 @@
       }
       
       if (konamiCode.every((code, index) => code === konami[index])) {
-        // Easter egg activated!
         document.body.style.animation = 'rainbow 2s infinite';
         setTimeout(() => {
           document.body.style.animation = '';
@@ -828,7 +823,6 @@
       }
     });
 
-    // Add rainbow animation for easter egg
     const style = document.createElement('style');
     style.textContent = `
       @keyframes rainbow {

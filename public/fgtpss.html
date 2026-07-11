@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forgot Password</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'bg-dark': '#0b0c10',
+                    'panel': '#111317',
+                    'soft': '#171a21',
+                    'text-light': '#e6e8ec',
+                    'muted': '#9aa3af',
+                    'brand': '#6ee7ff',
+                    'brand-2': '#a78bfa',
+                },
+                fontFamily: {
+                    'inter': ['Inter', 'sans-serif'],
+                },
+            }
+        }
+    }
+</script>
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-text {
+        background: linear-gradient(135deg, #6ee7ff, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .gradient-button {
+        background: linear-gradient(135deg, #6ee7ff, #a78bfa);
+    }
+    .gradient-button:hover {
+        filter: brightness(1.1);
+    }
+</style>
+</head>
+<body class="bg-[#0b0c10] text-[#e6e8ec] min-h-screen flex items-center justify-center font-inter">
+<div class="bg-[#111317] rounded-2xl p-12 w-full max-w-md shadow-2xl text-center">
+    <h1 class="text-3xl font-bold mb-5 gradient-text">
+        <a href="TodoSysLand.html" class="hover:opacity-80 transition-opacity">Task Manager</a>
+    </h1>
+    
+    <p class="text-[#9aa3af] mb-8 text-sm">Please enter your email address to request your password.</p>
+
+    <form id="passwordResetForm" class="flex flex-col gap-5">
+        <input 
+            type="email" 
+            name="email" 
+            id="email"
+            placeholder="Email" 
+            required
+            class="px-4 py-3.5 rounded-2xl border border-white/10 bg-[#171a21] text-[#e6e8ec] placeholder:text-[#9aa3af] text-base focus:outline-none focus:border-[#6ee7ff]/50 transition-colors"
+        >
+        <button 
+            type="submit" 
+            class="px-4 py-3.5 rounded-2xl gradient-button text-[#0b0c10] font-semibold text-base cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg"
+        >
+            Request Password
+        </button>
+        <p id="errorMsg" class="text-sm text-red-500 hidden"></p>
+        <p id="successMsg" class="text-sm text-green-400 hidden"></p>
+    </form>
+
+    <div class="mt-5 text-sm text-[#9aa3af]">
+        <p>Remember your password? <a href="Login.html" class="text-[#6ee7ff] hover:underline no-underline">Login</a></p>
+    </div>
+</div>
+
+<script>
+const form = document.getElementById("passwordResetForm");
+const emailInput = document.getElementById("email");
+const errorMsg = document.getElementById("errorMsg");
+const successMsg = document.getElementById("successMsg");
+const submitButton = form.querySelector('button[type="submit"]');
+
+function isValidEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorMsg.textContent = "";
+    successMsg.textContent = "";
+    errorMsg.classList.add("hidden");
+    successMsg.classList.add("hidden");
+
+    const email = emailInput.value.trim();
+    if (!isValidEmail(email)) {
+        errorMsg.textContent = "Please enter a valid email address.";
+        errorMsg.classList.remove("hidden");
+        return;
+    }
+
+    // Disable button and show loading state
+    submitButton.disabled = true;
+    submitButton.textContent = "Sending...";
+    submitButton.style.opacity = "0.6";
+    submitButton.style.cursor = "not-allowed";
+
+    try {
+        const response = await fetch("/password-reset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        const text = await response.text();
+
+        if (response.ok) {
+            // Email sent successfully - keep button disabled
+            successMsg.textContent = text;
+            successMsg.classList.remove("hidden");
+            submitButton.textContent = "Email Sent ✓";
+            emailInput.disabled = true; // Also disable email input to prevent changes
+        } else {
+            // Error occurred - re-enable button
+            errorMsg.textContent = text;
+            errorMsg.classList.remove("hidden");
+            submitButton.disabled = false;
+            submitButton.textContent = "Reset Password";
+            submitButton.style.opacity = "1";
+            submitButton.style.cursor = "pointer";
+        }
+    } catch (err) {
+        console.error(err);
+        errorMsg.textContent = "Server error. Please try again later.";
+        errorMsg.classList.remove("hidden");
+        // Re-enable button on error
+        submitButton.disabled = false;
+        submitButton.textContent = "Reset Password";
+        submitButton.style.opacity = "1";
+        submitButton.style.cursor = "pointer";
+    }
+});
+</script>
+</body>
+</html>
