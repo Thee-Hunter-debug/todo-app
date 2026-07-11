@@ -9,7 +9,7 @@ const token = crypto.randomBytes(32).toString("hex");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -21,21 +21,37 @@ const pool = new Pool({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/TodoSysLand.html"));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(session({
+  secret: 'supersecretkey',
+  resave: false,
+  saveUninitialized: false
+}));
+
+
+// Landing Page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/TodoSysLand.html'));
 });
 
-
-app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/login.html"));
+// Login Page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/login.html'));
 });
 
 app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "public/Signup.html"));
 });
 
-app.get("/home", (req, res) => {
+
+// Home Page (protected)
+app.get('/home', (req, res) => {
   if (!req.session.userId) {
     return res.redirect("/login");
   }
@@ -76,7 +92,8 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+// Handle Login
+app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -99,14 +116,15 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/logout", (req, res) => {
+// Logout
+app.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
 
-app.get("/api/me", async (req, res) => {
-  if (!req.session.userId)
-    return res.status(401).json({ error: "Not logged in" });
+//After the Login the magin happens
+app.get('/api/me', async (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'Not logged in' });
 
   try {
     const userResult = await pool.query(
@@ -146,7 +164,9 @@ app.get("/api/tasks", async (req, res) => {
   }
 });
 
-app.post("/api/tasks", async (req, res) => {
+
+//adding data to the table`
+app.post('/api/tasks', async (req, res) => {
   const { id, title, desc, prio, due, tags, done } = req.body;
 
   if (!req.session.userId)
@@ -154,6 +174,7 @@ app.post("/api/tasks", async (req, res) => {
 
   try {
     if (id && done !== undefined) {
+      // Only updating done status
       const result = await pool.query(
         "UPDATE tasks SET done=$1, updated_at=NOW() WHERE id=$2 AND user_id=$3 RETURNING *",
         [done, id, req.session.userId]
@@ -164,6 +185,7 @@ app.post("/api/tasks", async (req, res) => {
     }
 
     if (id) {
+      // Full edit
       const result = await pool.query(
         `UPDATE tasks
          SET title=$1, description=$2, priority=$3, due_date=$4, tags=$5, updated_at=NOW()
@@ -204,8 +226,8 @@ app.delete("/api/tasks", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Failed to delete task" });
   }
-});
-
+}); 
+// Toggle task done status
 app.post("/api/tasks/toggle", async (req, res) => {
   const { id } = req.body;
   if (!req.session.userId)
@@ -230,6 +252,7 @@ app.post("/api/tasks/toggle", async (req, res) => {
   }
 });
 
+//This API is responsible for bulk deleting tasks 
 app.delete("/api/tasks/bulk", async (req, res) => {
   const { ids } = req.body;
   if (!req.session.userId)
@@ -289,99 +312,6 @@ app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
   }
 });
 
-app.post("/password-reset", async (req, res) => {
-  const { email } = req.body;
 
-  if (!email || typeof email !== 'string' || !email.trim()) {
-    return res.status(400).send("Email is required");
-  }
-
-  try {
-    
-    const user = await pool.query(
-      "SELECT id, name FROM users WHERE email = $1",
-      [email.trim().toLowerCase()]
-    );
-
-   
-    if (user.rows.length === 0) {
-      return res.status(200).send("If that email exists, your password has been sent to your email.");
-    }
-
- 
-    const userId = user.rows[0].id;
-    const userName = user.rows[0].name || "User";
-
-    const tempPassword = crypto.randomBytes(12).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 12);
-    
-    const hashedPassword = await bcrypt.hash(tempPassword, 10);
-
-    await pool.query(
-      "UPDATE users SET password = $1 WHERE id = $2",
-      [hashedPassword, userId]
-    );
-
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      try {
-        const transporter = nodemailer.createTransport({
-          service: "Gmail",
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-          }
-        });
-
-        await transporter.sendMail({
-          from: `"Task Manager" <${process.env.EMAIL_USER}>`,
-          to: email.trim(),
-          subject: "Task Manager Password Reset",
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #0b0c10; color: #e6e8ec;">
-              <h2 style="color: #6ee7ff;">Password Recovery</h2>
-              <p>Hello ${userName},</p>
-              <p>You requested your password. Here is your new password:</p>
-              <div style="background: #111317; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                <p style="font-size: 18px; font-weight: bold; color: #6ee7ff; letter-spacing: 2px; margin: 0;">${tempPassword}</p>
-              </div>
-              <p style="color: #fcd34d;">⚠️ Please change this password after logging in for security.</p>
-              <p>If you didn't request this, please contact support immediately.</p>
-              <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-              <p style="color: #9aa3af; font-size: 12px;">This is an automated message. Please do not reply.</p>
-            </div>
-          `
-        });
-      } catch (emailErr) {
-        console.error("Email error:", emailErr);
-        return res.status(500).send("Failed to send email. Please try again later.");
-      }
-    } else {
-      console.log("Email not configured. New password for", email, ":", tempPassword);
-      return res.status(200).send(`Email not configured. Your new password is: ${tempPassword}`);
-    }
-
-    res.status(200).send("If that email exists, your password has been sent to your email.");
-
-  } catch (err) {
-    console.error("Password reset error:", err);
-    res.status(500).send("Server error. Please try again later.");
-  }
-});
-
-app.use(express.static(path.join(__dirname, "public"), {
-  fallthrough: true,
-  index: false
-}));
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "localsecret123",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false,
-    },
-  })
-);
-
-
-app.listen(PORT, () => console.log(` Running on http://localhost:${PORT}`));
+// Start server
+app.listen(PORT, () => console.log(`🚀 Running on http://localhost:${PORT}`));
