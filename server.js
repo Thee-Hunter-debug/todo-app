@@ -353,14 +353,6 @@ function generateResetPin() {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
 }
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
 //handle email sender
 async function sendResetPin(email, pin) {
   await resend.emails.send({
