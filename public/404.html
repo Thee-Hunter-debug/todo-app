@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found | Task Manager</title>
+    <title>Task Manager</title>
+     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect x='140' y='180' width='80' height='40' fill='%23a855f7' /%3E%3Crect x='140' y='220' width='40' height='80' fill='%23a855f7' /%3E%3Crect x='140' y='300' width='80' height='40' fill='%23a855f7' /%3E%3Crect x='180' y='260' width='40' height='80' fill='%23a855f7' /%3E%3Crect x='260' y='180' width='40' height='160' fill='%23ec4899' /%3E%3Crect x='300' y='180' width='40' height='80' fill='%23ec4899' /%3E%3Crect x='340' y='220' width='40' height='40' fill='%23ec4899' /%3E%3Crect x='380' y='180' width='40' height='80' fill='%23ec4899' /%3E%3Crect x='420' y='180' width='40' height='160' fill='%23ec4899' /%3E%3Crect x='235' y='250' width='20' height='20' fill='white' /%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -62,7 +63,7 @@
     </style>
 </head>
 <body class="bg-[#0b0c10] text-[#e6e8ec] min-h-screen flex items-center justify-center font-inter overflow-hidden">
-    <!-- Animated background elements -->
+    
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute top-20 left-20 w-72 h-72 bg-[#6ee7ff] rounded-full mix-blend-multiply filter blur-xl opacity-10 float-animation"></div>
         <div class="absolute top-40 right-20 w-72 h-72 bg-[#a78bfa] rounded-full mix-blend-multiply filter blur-xl opacity-10 float-animation" style="animation-delay: 1s;"></div>
@@ -70,76 +71,34 @@
     </div>
 
     <div class="relative z-10 bg-[#111317] rounded-2xl p-12 w-full max-w-lg shadow-2xl text-center border border-white/5">
-        <!-- Logo/Brand -->
         <h1 class="text-4xl font-bold mb-8 gradient-text">
             <a href="TodoSysLand.html" class="hover:opacity-80 transition-opacity">Task Manager</a>
         </h1>
-        
-        <!-- 404 Number -->
+    
         <div class="mb-8">
             <h2 class="text-9xl font-extrabold gradient-text float-animation glow" style="line-height: 1;">
                 404
             </h2>
         </div>
 
-        <!-- Error Message -->
         <h3 class="text-2xl font-semibold mb-4 text-[#e6e8ec]">
             Page Not Found
         </h3>
         <p class="text-[#9aa3af] mb-8 text-base leading-relaxed">
-            Oops! The page you're looking for doesn't exist or has been moved. 
-            <br>Let's get you back on track.
+            Oops! The page you're looking for doesn't exist. 
         </p>
 
-        <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
             <a 
-                href="TodoSysLand.html" 
+                href="/" 
                 class="px-6 py-3 rounded-2xl gradient-button text-[#0b0c10] font-semibold text-base cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg w-full sm:w-auto text-center"
             >
-                🏠 Go Home
+                Go Home
             </a>
-            <button 
-                onclick="window.history.back()" 
-                class="px-6 py-3 rounded-2xl bg-[#171a21] text-[#e6e8ec] font-semibold text-base cursor-pointer transition-all hover:bg-[#1f2329] border border-white/10 w-full sm:w-auto"
-            >
-                ← Go Back
-            </button>
+           
         </div>
 
-        <!-- Additional Links -->
-        <div class="mt-8 pt-6 border-t border-white/10">
-            <p class="text-sm text-[#9aa3af] mb-3">Quick Links:</p>
-            <div class="flex flex-wrap justify-center gap-4 text-sm">
-                <a href="Login.html" class="text-[#6ee7ff] hover:underline transition-colors">Login</a>
-                <span class="text-[#9aa3af]">•</span>
-                <a href="Signup.html" class="text-[#6ee7ff] hover:underline transition-colors">Sign Up</a>
-                <span class="text-[#9aa3af]">•</span>
-                <a href="TodoSysLand.html" class="text-[#6ee7ff] hover:underline transition-colors">Landing Page</a>
-            </div>
-        </div>
-
-        <!-- Fun element -->
-        <div class="mt-8 pulse-animation">
-            <p class="text-4xl">🔍</p>
-        </div>
     </div>
 
-    <script>
-        // Add some interactivity
-        document.addEventListener('DOMContentLoaded', () => {
-            // Animate the 404 number on load
-            const errorNumber = document.querySelector('.text-9xl');
-            if (errorNumber) {
-                errorNumber.style.opacity = '0';
-                errorNumber.style.transform = 'scale(0.5)';
-                setTimeout(() => {
-                    errorNumber.style.transition = 'all 0.5s ease-out';
-                    errorNumber.style.opacity = '1';
-                    errorNumber.style.transform = 'scale(1)';
-                }, 100);
-            }
-        });
-    </script>
 </body>
 </html>
