@@ -119,6 +119,7 @@ app.post('/login', async (req, res) => {
 
     req.session.userId = user.id;
     res.redirect("/home");
+    console.log(req.session)
   } catch (err) {
     console.log("Connecting to:", process.env.DATABASE_URL);
     console.error(err);
@@ -128,7 +129,13 @@ app.post('/login', async (req, res) => {
 
 // Logout
 app.get('/logout', (req, res) => {
-  req.session.destroy();
+  req.session.destroy((err) => {
+    if(err){
+      console.log(err);
+    };
+  });
+  
+  res.clearCookie('connect.sid');
   res.redirect("/");
 });
 
