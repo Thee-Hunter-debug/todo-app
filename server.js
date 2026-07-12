@@ -426,7 +426,10 @@ app.post("/forgot-password", async (req, res) => {
   } catch (err) {
     console.error("FORGOT PASSWORD ERROR:", err);
 
-    res.status(500).send("Server error");
+     res.status(500).json({
+        error: err.message,
+        stack: err.stack
+    });
   }
 });
 
