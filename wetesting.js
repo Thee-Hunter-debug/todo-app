@@ -1,8 +1,22 @@
-const express = require('express');
-const app = express();
+require("dotenv").config();
 
-app.get('/', (req, res) => res.send('Node is working Sire'));
+const { Pool } = require("pg");
 
-app.listen(5430, '127.0.0.1', () =>
-  console.log('Test Success')
-);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+
+(async () => {
+  try {
+    console.log("Connecting...");
+    const result = await pool.query("SELECT NOW()");
+    console.log("SUCCESS:", result.rows[0]);
+  } catch (err) {
+    console.error("FAILED:", err);
+  } finally {
+    await pool.end();
+  }
+})();

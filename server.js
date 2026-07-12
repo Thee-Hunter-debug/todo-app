@@ -7,26 +7,31 @@ const { Pool } = require("pg");
 const crypto = require("crypto");
 const token = crypto.randomBytes(32).toString("hex");
 const nodemailer = require("nodemailer");
-const { neon } = require('@neondatabase/serverless');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-pool.connect()
-  .then(() => console.log("Connected to PostgreSQL"))
-  .catch(err => {
-    console.error("Database connection failed:", err);
-    process.exit(1);
-  });
-
-/*onst pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
-*/
+
+(async () => {
+  try {
+    console.log("Connecting...");
+    const result = await pool.query("SELECT NOW()");
+    console.log("SUCCESS:", result.rows[0]);
+  } catch (err) {
+    console.error("FAILED:", err);
+  } 
+  
+})();
+
+pool.on("error", (err) => {
+  console.error("POOL ERROR:", err);
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,11 +39,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false
-}));
-app.use(session({
-  secret: 'supersecretkey',
   resave: false,
   saveUninitialized: false
 }));
@@ -120,6 +120,7 @@ app.post('/login', async (req, res) => {
     req.session.userId = user.id;
     res.redirect("/home");
   } catch (err) {
+    console.log("Connecting to:", process.env.DATABASE_URL);
     console.error(err);
     return res.redirect("/login?error=invalid");
   }
@@ -152,7 +153,7 @@ app.get('/api/me', async (req, res) => {
 
 app.get("/api/tasks", async (req, res) => {
   try {
-    const userId = Number(req.query.userId);
+    const userId = req.session.userId;
     if (!req.session.userId)
       return res.status(401).json({ error: "Not logged in" });
 
@@ -174,7 +175,7 @@ app.get("/api/tasks", async (req, res) => {
 });
 
 
-//adding data to the table`
+//adding data to the table
 app.post('/api/tasks', async (req, res) => {
   const { id, title, desc, prio, due, tags, done } = req.body;
 
@@ -183,7 +184,7 @@ app.post('/api/tasks', async (req, res) => {
 
   try {
     if (id && done !== undefined) {
-      // Only updating done status
+     
       const result = await pool.query(
         "UPDATE tasks SET done=$1, updated_at=NOW() WHERE id=$2 AND user_id=$3 RETURNING *",
         [done, id, req.session.userId]
@@ -214,6 +215,11 @@ app.post('/api/tasks', async (req, res) => {
     return res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
+    console.error("===== TASK ERROR =====");
+console.error(err);
+console.error(err.stack);
+console.error("User ID:", req.session.userId);
+console.error("Request Body:", req.body);
     res.status(500).json({ error: "DB error" });
   }
 });
@@ -321,6 +327,6 @@ app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
   }
 });
 
-
-// Start server
-app.listen(PORT, () => console.log(`🚀 Running on http://localhost:${PORT}`));
+app.listen(PORT, ()=> {
+  console.log(`Server running on http://localhost:${PORT}`);
+})
