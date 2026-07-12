@@ -6,10 +6,12 @@ const path = require("path");
 const { Pool } = require("pg");
 const crypto = require("crypto");
 const token = crypto.randomBytes(32).toString("hex");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -348,7 +350,7 @@ app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
 });
 
 function generateResetPin() {
-    return Math.floor(10000000 + Math.random() * 90000000).toString();
+  return Math.floor(10000000 + Math.random() * 90000000).toString();
 }
 
 const transporter = nodemailer.createTransport({
@@ -361,11 +363,26 @@ const transporter = nodemailer.createTransport({
 
 //handle email sender
 async function sendResetPin(email, pin) {
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  await resend.emails.send({
+    from: "TM Support <onboarding@resend.dev>",
+
     to: email,
-    subject: "Task Manager Password Reset PIN",
-    text: `Your password reset PIN is ${pin}. It expires in 5 minutes.`,
+
+    subject: "Your password reset PIN",
+
+    html: `
+            <div style="font-family: Arial, sans-serif">
+
+                <h2>Password Reset</h2>
+
+                <p>Your password reset PIN is:</p>
+
+                <h1>${pin}</h1>
+
+                <p>This PIN expires in 5 minutes.</p>
+
+            </div>
+        `,
   });
 }
 
@@ -426,9 +443,9 @@ app.post("/forgot-password", async (req, res) => {
   } catch (err) {
     console.error("FORGOT PASSWORD ERROR:", err);
 
-     res.status(500).json({
-        error: err.message,
-        stack: err.stack
+    res.status(500).json({
+      error: err.message,
+      stack: err.stack,
     });
   }
 });
