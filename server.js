@@ -368,16 +368,22 @@ async function sendResetPin(email, pin) {
 //verify email
 app.post("/forgot-password", async (req, res) => {
   try {
+    console.log("Forgot password started");
+
     const { email } = req.body;
+
+    console.log("Email received:", email);
 
     const userResult = await pool.query(
       `
-            SELECT id, email
-            FROM users
-            WHERE email = $1
-            `,
+      SELECT id, email
+      FROM users
+      WHERE email = $1
+      `,
       [email],
     );
+
+    console.log("User lookup complete");
 
     if (userResult.rows.length === 0) {
       return res.status(404).send("Email not found");
@@ -385,26 +391,35 @@ app.post("/forgot-password", async (req, res) => {
 
     const user = userResult.rows[0];
 
+    console.log("User found:", user.id);
+
     const pin = generateResetPin();
 
+    console.log("PIN generated");
+
     const pinHash = await bcrypt.hash(pin, 10);
-      console.log("PIN generated");
+
+    console.log("PIN hashed");
 
     await pool.query(
       `
-            INSERT INTO tempcodes
-            (user_id, pin_hash, expires_at)
-            VALUES
-            ($1,$2,NOW() + INTERVAL '5 minutes')
-            `,
+      INSERT INTO tempcodes
+      (user_id, pin_hash, expires_at)
+      VALUES
+      ($1,$2,NOW() + INTERVAL '5 minutes')
+      `,
       [user.id, pinHash],
     );
 
+    console.log("PIN saved");
+
     await sendResetPin(user.email, pin);
+
+    console.log("Email sent");
 
     res.send("PIN sent successfully");
   } catch (err) {
-    console.error(err);
+    console.error("FORGOT PASSWORD ERROR:", err);
 
     res.status(500).send("Server error");
   }
