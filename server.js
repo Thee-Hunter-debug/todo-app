@@ -58,6 +58,10 @@ app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "public/Signup.html"));
 });
 
+app.get("/not-found ",(req,res) => {
+  res.sendFile(path.join(__dirname, 'public/fgtpss.html'))
+});
+
 
 // Home Page (protected)
 app.get('/home', (req, res) => {
@@ -67,6 +71,7 @@ app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, "public/TodoSys.html"));
 });
 
+//Handle sign up
 app.post("/signup", async (req, res) => {
   const { name, surname, email, password, confirmPassword } = req.body;
 
@@ -139,7 +144,7 @@ app.get('/logout', (req, res) => {
   res.redirect("/");
 });
 
-//After the Login the magin happens
+//After the Login the magic happens
 app.get('/api/me', async (req, res) => {
   if (!req.session.userId) return res.status(401).json({ error: 'Not logged in' });
 
@@ -158,6 +163,7 @@ app.get('/api/me', async (req, res) => {
   }
 });
 
+//handle fetch tasks
 app.get("/api/tasks", async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -332,6 +338,12 @@ app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Failed to update tasks" });
   }
+});
+
+app.use((req,res)=>{
+  res.status(404).sendFile(
+    path.join(__dirname, "public", "fgtpss.html")
+  );
 });
 
 app.listen(PORT, ()=> {
