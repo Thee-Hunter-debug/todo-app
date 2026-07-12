@@ -86,7 +86,32 @@
           id="sendPinBtn"
           class="w-full px-4 py-3.5 rounded-2xl gradient-button text-[#0b0c10] font-semibold"
         >
-          Send PIN
+          <span id="sendPinText">Send PIN</span>
+
+          <span id="sendPinLoader" class="hidden">
+            <svg
+              class="animate-spin inline w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+                opacity="0.25"
+              />
+              <path
+                d="M4 12a8 8 0 018-8"
+                stroke="currentColor"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+            </svg>
+
+            Sending...
+          </span>
         </button>
       </div>
 
