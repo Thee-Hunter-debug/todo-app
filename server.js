@@ -388,6 +388,7 @@ app.post("/forgot-password", async (req, res) => {
     const pin = generateResetPin();
 
     const pinHash = await bcrypt.hash(pin, 10);
+      console.log("PIN generated");
 
     await pool.query(
       `
