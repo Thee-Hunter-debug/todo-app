@@ -1,104 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager</title>
-     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect x='140' y='180' width='80' height='40' fill='%23a855f7' /%3E%3Crect x='140' y='220' width='40' height='80' fill='%23a855f7' /%3E%3Crect x='140' y='300' width='80' height='40' fill='%23a855f7' /%3E%3Crect x='180' y='260' width='40' height='80' fill='%23a855f7' /%3E%3Crect x='260' y='180' width='40' height='160' fill='%23ec4899' /%3E%3Crect x='300' y='180' width='40' height='80' fill='%23ec4899' /%3E%3Crect x='340' y='220' width='40' height='40' fill='%23ec4899' /%3E%3Crect x='380' y='180' width='40' height='80' fill='%23ec4899' /%3E%3Crect x='420' y='180' width='40' height='160' fill='%23ec4899' /%3E%3Crect x='235' y='250' width='20' height='20' fill='white' /%3E%3C/svg%3E">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Page Not Found | Task Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'bg-dark': '#0b0c10',
-                        'panel': '#111317',
-                        'soft': '#171a21',
-                        'text-light': '#e6e8ec',
-                        'muted': '#9aa3af',
-                        'brand': '#6ee7ff',
-                        'brand-2': '#a78bfa',
-                    },
-                    fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "bg-dark": "#0b0c10",
+              panel: "#111317",
+              soft: "#171a21",
+              "text-light": "#e6e8ec",
+              muted: "#9aa3af",
+              brand: "#6ee7ff",
+              "brand-2": "#a78bfa",
+            },
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
     </script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #6ee7ff, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .gradient-button {
+        background: linear-gradient(135deg, #6ee7ff, #a78bfa);
+      }
+      .gradient-button:hover {
+        filter: brightness(1.1);
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
         }
-        .gradient-text {
-            background: linear-gradient(135deg, #6ee7ff, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        50% {
+          transform: translateY(-20px);
         }
-        .gradient-button {
-            background: linear-gradient(135deg, #6ee7ff, #a78bfa);
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
         }
-        .gradient-button:hover {
-            filter: brightness(1.1);
+        50% {
+          opacity: 0.5;
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .float-animation {
-            animation: float 3s ease-in-out infinite;
-        }
-        .pulse-animation {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        .glow {
-            box-shadow: 0 0 40px rgba(110, 231, 255, 0.3);
-        }
+      }
+      .float-animation {
+        animation: float 3s ease-in-out infinite;
+      }
+      .pulse-animation {
+        animation: pulse 2s ease-in-out infinite;
+      }
+      .glow {
+        box-shadow: 0 0 40px rgba(110, 231, 255, 0.3);
+      }
     </style>
-</head>
-<body class="bg-[#0b0c10] text-[#e6e8ec] min-h-screen flex items-center justify-center font-inter overflow-hidden">
-    
-    <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-20 left-20 w-72 h-72 bg-[#6ee7ff] rounded-full mix-blend-multiply filter blur-xl opacity-10 float-animation"></div>
-        <div class="absolute top-40 right-20 w-72 h-72 bg-[#a78bfa] rounded-full mix-blend-multiply filter blur-xl opacity-10 float-animation" style="animation-delay: 1s;"></div>
-        <div class="absolute bottom-20 left-1/2 w-72 h-72 bg-[#ff6b9d] rounded-full mix-blend-multiply filter blur-xl opacity-10 float-animation" style="animation-delay: 2s;"></div>
+  </head>
+  <body
+    class="bg-[#0b0c10] text-[#e6e8ec] min-h-screen flex items-center justify-center font-inter overflow-hidden"
+  >
+    <div
+      class="relative z-10 bg-[#111317] rounded-2xl p-12 w-full max-w-lg shadow-2xl text-center border border-white/5"
+    >
+      <h1 class="text-4xl font-bold mb-8 gradient-text">
+        <a href="/">Task Manager</a>
+      </h1>
+
+      <h3 class="text-2xl font-semibold mb-4 text-[#e6e8ec]">404</h3>
+      <p class="text-[#9aa3af] mb-8 text-base leading-relaxed">
+        Oops! The page you're looking for doesn't exist.
+      </p>
+
+      <div
+        class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6"
+      >
+        <a
+          href="/"
+          class="px-6 py-3 rounded-2xl gradient-button text-[#0b0c10] font-semibold text-base cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg w-full sm:w-auto text-center"
+        >
+          Go Home
+        </a>
+        <button
+          onclick="window.history.back()"
+          class="px-6 py-3 rounded-2xl bg-[#171a21] text-[#e6e8ec] font-semibold text-base cursor-pointer transition-all hover:bg-[#1f2329] border border-white/10 w-full sm:w-auto"
+        >
+          Go Back
+        </button>
+      </div>
     </div>
-
-    <div class="relative z-10 bg-[#111317] rounded-2xl p-12 w-full max-w-lg shadow-2xl text-center border border-white/5">
-        <h1 class="text-4xl font-bold mb-8 gradient-text">
-            <a href="TodoSysLand.html" class="hover:opacity-80 transition-opacity">Task Manager</a>
-        </h1>
-    
-        <div class="mb-8">
-            <h2 class="text-9xl font-extrabold gradient-text float-animation glow" style="line-height: 1;">
-                404
-            </h2>
-        </div>
-
-        <h3 class="text-2xl font-semibold mb-4 text-[#e6e8ec]">
-            Page Not Found
-        </h3>
-        <p class="text-[#9aa3af] mb-8 text-base leading-relaxed">
-            Oops! The page you're looking for doesn't exist. 
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-            <a 
-                href="/" 
-                class="px-6 py-3 rounded-2xl gradient-button text-[#0b0c10] font-semibold text-base cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg w-full sm:w-auto text-center"
-            >
-                Go Home
-            </a>
-           
-        </div>
-
-    </div>
-
-</body>
+  </body>
 </html>

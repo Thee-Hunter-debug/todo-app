@@ -25,8 +25,7 @@ const pool = new Pool({
     console.log("SUCCESS:", result.rows[0]);
   } catch (err) {
     console.error("FAILED:", err);
-  } 
-  
+  }
 })();
 
 pool.on("error", (err) => {
@@ -35,36 +34,43 @@ pool.on("error", (err) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false
-}));
-
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  }),
+);
 
 // Landing Page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/TodoSysLand.html'));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/TodoSysLand.html"));
 });
 
 // Login Page
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/Login.html'));
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/Login.html"));
 });
 
+//signup page
 app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "public/Signup.html"));
 });
 
-app.get("/not-found ",(req,res) => {
-  res.sendFile(path.join(__dirname, 'public/fgtpss.html'))
+//404
+app.get("/not-found ", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/fgtpss.html"));
 });
 
+//serve passfgt
+app.get("/fgtpass", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/fgtpss.html"));
+});
 
-// Home Page (protected)
-app.get('/home', (req, res) => {
+// Valid
+app.get("/home", (req, res) => {
   if (!req.session.userId) {
     return res.redirect("/login");
   }
@@ -95,7 +101,7 @@ app.post("/signup", async (req, res) => {
 
     await pool.query(
       "INSERT INTO users (name, surname, email, password) VALUES ($1, $2, $3, $4)",
-      [name, surname, email, hashedPassword]
+      [name, surname, email, hashedPassword],
     );
 
     return res.redirect("/login");
@@ -107,13 +113,13 @@ app.post("/signup", async (req, res) => {
 });
 
 // Handle Login
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const userResult = await pool.query(
       "SELECT * FROM users WHERE email = $1",
-      [email]
+      [email],
     );
     const user = userResult.rows[0];
 
@@ -124,7 +130,7 @@ app.post('/login', async (req, res) => {
 
     req.session.userId = user.id;
     res.redirect("/home");
-    console.log(req.session)
+    console.log(req.session);
   } catch (err) {
     console.log("Connecting to:", process.env.DATABASE_URL);
     console.error(err);
@@ -133,25 +139,26 @@ app.post('/login', async (req, res) => {
 });
 
 // Logout
-app.get('/logout', (req, res) => {
+app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
-    if(err){
+    if (err) {
       console.log(err);
-    };
+    }
   });
-  
-  res.clearCookie('connect.sid');
+
+  res.clearCookie("connect.sid");
   res.redirect("/");
 });
 
 //After the Login the magic happens
-app.get('/api/me', async (req, res) => {
-  if (!req.session.userId) return res.status(401).json({ error: 'Not logged in' });
+app.get("/api/me", async (req, res) => {
+  if (!req.session.userId)
+    return res.status(401).json({ error: "Not logged in" });
 
   try {
     const userResult = await pool.query(
       "SELECT id, name, surname FROM users WHERE id = $1",
-      [req.session.userId]
+      [req.session.userId],
     );
     const user = userResult.rows[0];
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -177,7 +184,7 @@ app.get("/api/tasks", async (req, res) => {
       WHERE user_id = $1
       ORDER BY id DESC
     `,
-      [userId]
+      [userId],
     );
 
     res.json(result.rows);
@@ -187,9 +194,8 @@ app.get("/api/tasks", async (req, res) => {
   }
 });
 
-
 //adding data to the table
-app.post('/api/tasks', async (req, res) => {
+app.post("/api/tasks", async (req, res) => {
   const { id, title, desc, prio, due, tags, done } = req.body;
 
   if (!req.session.userId)
@@ -197,10 +203,9 @@ app.post('/api/tasks', async (req, res) => {
 
   try {
     if (id && done !== undefined) {
-     
       const result = await pool.query(
         "UPDATE tasks SET done=$1, updated_at=NOW() WHERE id=$2 AND user_id=$3 RETURNING *",
-        [done, id, req.session.userId]
+        [done, id, req.session.userId],
       );
       if (!result.rows[0])
         return res.status(404).json({ error: "Task not found" });
@@ -213,7 +218,7 @@ app.post('/api/tasks', async (req, res) => {
         `UPDATE tasks
          SET title=$1, description=$2, priority=$3, due_date=$4, tags=$5, updated_at=NOW()
          WHERE id=$6 AND user_id=$7 RETURNING *`,
-        [title, desc, prio, due, tags, id, req.session.userId]
+        [title, desc, prio, due, tags, id, req.session.userId],
       );
       if (!result.rows[0])
         return res.status(404).json({ error: "Task not found" });
@@ -223,20 +228,21 @@ app.post('/api/tasks', async (req, res) => {
     const result = await pool.query(
       `INSERT INTO tasks (user_id, title, description, priority, due_date, tags)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [req.session.userId, title, desc, prio, due, tags]
+      [req.session.userId, title, desc, prio, due, tags],
     );
     return res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
     console.error("===== TASK ERROR =====");
-console.error(err);
-console.error(err.stack);
-console.error("User ID:", req.session.userId);
-console.error("Request Body:", req.body);
+    console.error(err);
+    console.error(err.stack);
+    console.error("User ID:", req.session.userId);
+    console.error("Request Body:", req.body);
     res.status(500).json({ error: "DB error" });
   }
 });
 
+//deleting data
 app.delete("/api/tasks", async (req, res) => {
   const { id } = req.body;
   if (!req.session.userId)
@@ -245,7 +251,7 @@ app.delete("/api/tasks", async (req, res) => {
   try {
     const result = await pool.query(
       "DELETE FROM tasks WHERE id=$1 AND user_id=$2 RETURNING *",
-      [id, req.session.userId]
+      [id, req.session.userId],
     );
     if (!result.rows[0])
       return res.status(404).json({ error: "Task not found" });
@@ -254,7 +260,7 @@ app.delete("/api/tasks", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Failed to delete task" });
   }
-}); 
+});
 // Toggle task done status
 app.post("/api/tasks/toggle", async (req, res) => {
   const { id } = req.body;
@@ -267,7 +273,7 @@ app.post("/api/tasks/toggle", async (req, res) => {
        SET done = NOT done, updated_at = now()
        WHERE id=$1 AND user_id=$2
        RETURNING *`,
-      [id, req.session.userId]
+      [id, req.session.userId],
     );
 
     if (!result.rows[0])
@@ -280,7 +286,7 @@ app.post("/api/tasks/toggle", async (req, res) => {
   }
 });
 
-//This API is responsible for bulk deleting tasks 
+//This API is responsible for bulk deleting tasks
 app.delete("/api/tasks/bulk", async (req, res) => {
   const { ids } = req.body;
   if (!req.session.userId)
@@ -291,7 +297,7 @@ app.delete("/api/tasks/bulk", async (req, res) => {
   try {
     const result = await pool.query(
       "DELETE FROM tasks WHERE id = ANY($1) AND user_id = $2 RETURNING *",
-      [ids, req.session.userId]
+      [ids, req.session.userId],
     );
 
     if (!result.rows.length)
@@ -308,6 +314,7 @@ app.delete("/api/tasks/bulk", async (req, res) => {
   }
 });
 
+//mark tast done
 app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
   const { ids } = req.body;
   if (!req.session.userId)
@@ -323,7 +330,7 @@ app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
        SET done = TRUE, completed_at = to_timestamp($2 / 1000.0)
        WHERE id = ANY($1) AND user_id = $3
        RETURNING *`,
-      [ids, timestamp, req.session.userId]
+      [ids, timestamp, req.session.userId],
     );
 
     if (!result.rows.length)
@@ -340,12 +347,172 @@ app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
   }
 });
 
-app.use((req,res)=>{
-  res.status(404).sendFile(
-    path.join(__dirname, "public", "404.html")
-  );
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
-app.listen(PORT, ()=> {
+//handle email sender
+async function sendResetPin(email, pin) {
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Task Manager Password Reset PIN",
+    text: `Your password reset PIN is ${pin}. It expires in 5 minutes.`,
+  });
+}
+
+//verify email
+app.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const userResult = await pool.query(
+      `
+            SELECT id, email
+            FROM users
+            WHERE email = $1
+            `,
+      [email],
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).send("Email not found");
+    }
+
+    const user = userResult.rows[0];
+
+    const pin = generateResetPin();
+
+    const pinHash = await bcrypt.hash(pin, 10);
+
+    await pool.query(
+      `
+            INSERT INTO tempcodes
+            (user_id, pin_hash, expires_at)
+            VALUES
+            ($1,$2,NOW() + INTERVAL '5 minutes')
+            `,
+      [user.id, pinHash],
+    );
+
+    await sendResetPin(user.email, pin);
+
+    res.send("PIN sent successfully");
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).send("Server error");
+  }
+});
+
+//verify pin match
+app.post("/verify-reset-pin", async (req, res) => {
+  try {
+    const { email, pin } = req.body;
+
+    const userResult = await pool.query(
+      `
+            SELECT id
+            FROM users
+            WHERE email=$1
+            `,
+      [email],
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    const userId = userResult.rows[0].id;
+
+    const resetResult = await pool.query(
+      `
+            SELECT *
+            FROM tempcodes
+            WHERE user_id=$1
+            AND used=false
+            AND expires_at > NOW()
+            ORDER BY created_at DESC
+            LIMIT 1
+            `,
+      [userId],
+    );
+
+    if (resetResult.rows.length === 0) {
+      return res.status(400).send("PIN expired");
+    }
+
+    const reset = resetResult.rows[0];
+
+    const valid = await bcrypt.compare(pin, reset.pin_hash);
+
+    if (!valid) {
+      return res.status(400).send("Invalid PIN");
+    }
+
+    await pool.query(
+      `
+            UPDATE tempcodes
+            SET used=true
+            WHERE id=$1
+            `,
+      [reset.id],
+    );
+
+    req.session.passwordResetUser = userId;
+
+    res.send("PIN verified");
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).send("Server error");
+  }
+});
+
+//handle password reset
+app.post("/reset-password", async (req, res) => {
+  try {
+    const userId = req.session.passwordResetUser;
+
+    if (!userId) {
+      return res.status(401).send("Reset session expired");
+    }
+
+    const { password } = req.body;
+
+    if (!password || password.length < 6) {
+      return res.status(400).send("Password too short");
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await pool.query(
+      `
+            UPDATE users
+            SET password=$1
+            WHERE id=$2
+            `,
+      [hash, userId],
+    );
+
+    delete req.session.passwordResetUser;
+
+    res.send("Password updated");
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).send("Server error");
+  }
+});
+
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+});
+
+app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-})
+});
