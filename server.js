@@ -342,7 +342,7 @@ app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
 
 app.use((req,res)=>{
   res.status(404).sendFile(
-    path.join(__dirname, "public", "fgtpss.html")
+    path.join(__dirname, "public", "404.html")
   );
 });
 
