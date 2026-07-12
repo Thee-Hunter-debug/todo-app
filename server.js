@@ -347,6 +347,10 @@ app.post("/api/tasks/bulk-toggle-done", async (req, res) => {
   }
 });
 
+function generateResetPin() {
+    return Math.floor(10000000 + Math.random() * 90000000).toString();
+}
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
