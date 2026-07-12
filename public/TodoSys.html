@@ -634,7 +634,7 @@
             desc: t.description || "",
             prio: t.priority,
             due: t.due_date ? t.due_date.slice(0, 10) : "",
-            tags: t.tags ? t.tags.split(",").map((tag) => tag.trim()) : [],
+            tags: t.tags ? (t.tags || "").split(",").map((tag) => tag.trim()) : [],
             done: t.done,
           }));
 
@@ -870,7 +870,7 @@
             desc: t.description || "",
             prio: t.priority,
             due: t.due_date ? t.due_date.slice(0, 10) : "",
-            tags: t.tags ? t.tags.split(",").map((tag) => tag.trim()) : [],
+            tags: t.tags ? (t.tags || "").split(",").map((tag) => tag.trim()) : [],
             done: t.done,
             createdAt: t.created_at ? new Date(t.created_at).getTime() : 0,
             updatedAt: t.updated_at ? new Date(t.updated_at).getTime() : 0,
