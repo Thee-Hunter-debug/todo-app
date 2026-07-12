@@ -371,6 +371,7 @@ async function sendResetPin(email, pin) {
 
 //verify email
 app.post("/forgot-password", async (req, res) => {
+  console.log("FORGOT PASSWORD ROUTE HIT");
   try {
     console.log("Forgot password started");
 
