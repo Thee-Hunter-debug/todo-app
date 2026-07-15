@@ -7,7 +7,7 @@ Overview
 The Todo App is a modern, secure task management system designed to help users organize, track, and complete their daily tasks efficiently. Users can sign up, log in, create tasks with priorities and tags, mark tasks as done, and manage tasks in bulk. Built with simplicity and scalability in mind, it ensures both a smooth user experience and secure data handling.
 
 
-Live Site: https://task-manager-inc.onrender.com/
+Live Site: https://todo-app-zl1q.onrender.com
 ________________________________________
 Tech Stack
 
